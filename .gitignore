@@ -43,3 +43,12 @@ yarn-error.*
 # Secret keys and config files
 src/firebaseConfig.ts
 functions/.env.psyvana-9ca9f
+#
+# --- CUSTOM IGNORES FOR SECURITY ---
+#
+
+# Ignore all local environment files
+.env*
+
+# Ignore the Firebase config file
+src/firebaseConfig.ts
