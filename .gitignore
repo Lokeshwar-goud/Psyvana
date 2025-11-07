@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Secret keys and config files
+src/firebaseConfig.ts
+functions/.env.psyvana-9ca9f
