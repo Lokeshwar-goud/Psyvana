@@ -1,8 +1,7 @@
 // App.tsx
 import React from 'react';
-import AppNavigator from './src/navigation/AppNavigator';
+import RootNavigator from './src/navigation/RootNavigator';
 
 export default function App() {
-  // The entire app's navigation is now handled by AppNavigator
-  return <AppNavigator />;
+  return <RootNavigator />;
 }

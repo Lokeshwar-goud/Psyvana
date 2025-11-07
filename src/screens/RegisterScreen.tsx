@@ -1,40 +1,46 @@
-// src/screens/LoginScreen.tsx
+// src/screens/RegisterScreen.tsx
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Platform, ActivityIndicator, ScrollView, KeyboardAvoidingView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, Alert, Platform, ActivityIndicator, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
-import { signIn } from '../services/authService';
+import { signUp } from '../services/authService';
 
-type LoginScreenProps = {
+type RegisterScreenProps = {
   navigation: {
-    navigate: (screen: string) => void;
+    goBack: () => void;
   };
 };
 
-export default function LoginScreen({ navigation }: LoginScreenProps) {
+export default function RegisterScreen({ navigation }: RegisterScreenProps) {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async () => {
-  if (!email || !password) {
-    Alert.alert('Missing Information', 'Please enter both email and password.');
-    return;
-  }
+  const handleSignUp = async () => {
+    // Basic validation
+    if (!name || !email || !password || !confirmPassword) {
+      Alert.alert('Missing Fields', 'Please fill in all fields.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert('Password Mismatch', 'The passwords do not match.');
+      return;
+    }
 
-  setIsLoading(true);
-  const result = await signIn(email, password);
-  setIsLoading(false);
+    setIsLoading(true);
+    const result = await signUp(name, email, password);
+    setIsLoading(false);
 
-  // If the sign-in fails, show an error.
-  // If it succeeds, the RootNavigator will automatically handle the screen change.
-  if (!result.success) {
-    Alert.alert('Login Failed', result.error);
-  }
-};
+    if (result.success) {
+      Alert.alert('Account Created!', 'Your account has been created successfully. Please log in.');
+      navigation.goBack(); // Go back to the Login screen
+    } else {
+      Alert.alert('Sign-Up Failed', result.error);
+    }
+  };
 
   return (
     <LinearGradient colors={['#E6E6FA', '#F0F8FF']} style={styles.container}>
@@ -43,15 +49,24 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
           behavior={Platform.OS === "ios" ? "padding" : "height"} 
           style={{ flex: 1 }}
         >
-          {/* We use a ScrollView to prevent content from being pushed off-screen */}
           <ScrollView contentContainerStyle={styles.scrollViewContent}>
             <View style={styles.header}>
-              <Text style={styles.title}>Welcome Back</Text>
-              <Text style={styles.subtitle}>Log in to continue your journey</Text>
+              <Text style={styles.title}>Create Account</Text>
+              <Text style={styles.subtitle}>Start your wellness journey today</Text>
             </View>
 
-            {/* This view now contains our form elements */}
             <View style={styles.formContainer}>
+              <View style={styles.inputContainer}>
+                <Feather name="user" size={20} color="#6A5ACD" style={styles.icon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Full Name"
+                  placeholderTextColor="#778899"
+                  value={name}
+                  onChangeText={setName}
+                />
+              </View>
+
               <View style={styles.inputContainer}>
                 <Feather name="mail" size={20} color="#6A5ACD" style={styles.icon} />
                 <TextInput
@@ -73,27 +88,36 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
                   placeholderTextColor="#778899"
                   value={password}
                   onChangeText={setPassword}
-                  secureTextEntry={!isPasswordVisible}
+                  secureTextEntry
                 />
-                <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
-                  <Feather name={isPasswordVisible ? "eye-off" : "eye"} size={20} color="#6A5ACD" />
-                </TouchableOpacity>
               </View>
 
-              <TouchableOpacity onPress={handleLogin} disabled={isLoading} style={styles.buttonWrapper}>
+              <View style={styles.inputContainer}>
+                <Feather name="lock" size={20} color="#6A5ACD" style={styles.icon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Confirm Password"
+                  placeholderTextColor="#778899"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry
+                />
+              </View>
+
+              <TouchableOpacity onPress={handleSignUp} disabled={isLoading} style={styles.buttonWrapper}>
                 <LinearGradient colors={['#8A2BE2', '#BA55D3']} style={styles.button}>
                   {isLoading ? (
                     <ActivityIndicator size="small" color="#ffffff" />
                   ) : (
-                    <Text style={styles.buttonText}>Log In</Text>
+                    <Text style={styles.buttonText}>Sign Up</Text>
                   )}
                 </LinearGradient>
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity onPress={() => navigation.navigate('Register')} style={styles.footerButton}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.footerButton}>
               <Text style={styles.footerText}>
-                Don't have an account? <Text style={styles.linkText}>Sign Up</Text>
+                Already have an account? <Text style={styles.linkText}>Log In</Text>
               </Text>
             </TouchableOpacity>
           </ScrollView>
@@ -103,14 +127,15 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   );
 }
 
-// --- NEW and IMPROVED Styles ---
+// Styles are very similar to the Login Screen for consistency
 const styles = StyleSheet.create({
   container: { flex: 1 },
   safeArea: { flex: 1 },
   scrollViewContent: {
-    flexGrow: 1, // Ensures the container can grow to fill space
-    justifyContent: 'center', // Centers content vertically
-    paddingHorizontal: 20, // Horizontal padding for the whole screen
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
   },
   header: {
     alignItems: 'center',
@@ -136,7 +161,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     paddingHorizontal: 15,
     marginBottom: 20,
-    height: 55, // Fixed height for consistency
+    height: 55,
   },
   icon: {
     marginRight: 10,

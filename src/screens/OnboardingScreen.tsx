@@ -1,7 +1,8 @@
 // src/screens/OnboardingScreen.tsx
 
 import React, { useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList, useWindowDimensions, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, useWindowDimensions, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedScrollHandler, useAnimatedStyle, interpolate, Extrapolate, SharedValue } from 'react-native-reanimated';
 import { Feather } from '@expo/vector-icons';
